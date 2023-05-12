@@ -15,6 +15,7 @@
         "solidity-coverage": "^0.7.18"
     },
     "dependencies": {
+        "@aave/lens-protocol": "github:lens-protocol/core",
         "@aave/protocol-v2": "^1.0.1",
         "@chainlink/contracts": "^0.5.1",
         "@ethersproject/bignumber": "^5.5.0",
