@@ -3,6 +3,12 @@
     "FollowerOnlyReferenceModule": {
       "address": "0xBfa93b612Ff6d7E1eFCb3E6738a1F8C535bcCcc5",
       "startBlock": 35540125
+    },
+    "Contract": {
+      "address": "0x0ED8A939018FA02F799fEe2D10da68a9F5b2a314"
+    },
+    "PublicationReferenceModule": {
+      "address": "0x0ED8A939018FA02F799fEe2D10da68a9F5b2a314"
     }
   }
 }

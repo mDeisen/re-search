@@ -88,10 +88,10 @@ export class Review__Params {
   }
 }
 
-export class FollowerOnlyReferenceModule extends ethereum.SmartContract {
-  static bind(address: Address): FollowerOnlyReferenceModule {
-    return new FollowerOnlyReferenceModule(
-      "FollowerOnlyReferenceModule",
+export class PublicationReferenceModule extends ethereum.SmartContract {
+  static bind(address: Address): PublicationReferenceModule {
+    return new PublicationReferenceModule(
+      "PublicationReferenceModule",
       address
     );
   }

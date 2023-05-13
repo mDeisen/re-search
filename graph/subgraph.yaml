@@ -3,26 +3,25 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
-    name: FollowerOnlyReferenceModule
+    name: PublicationReferenceModule
     network: mumbai
     source:
       address: "0x0ED8A939018FA02F799fEe2D10da68a9F5b2a314"
-      abi: FollowerOnlyReferenceModule
-      startBlock: 35546130
+      abi: PublicationReferenceModule
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - Profile
-        - Publication
-        - Review
+        - OwnershipTransferred
+        - Publish
+        - PublicationReferenceModuleReview
       abis:
-        - name: FollowerOnlyReferenceModule
-          file: ./abis/FollowerOnlyReferenceModule.json
+        - name: PublicationReferenceModule
+          file: ./abis/PublicationReferenceModule.json
       eventHandlers:
         - event: Publish(uint256,uint256,uint256[])
           handler: handlePublish
         - event: Review(uint256,uint256,uint256,bool)
           handler: handleReview
-      file: ./src/follower-only-reference-module.ts
+      file: ./src/publication-reference-module.ts

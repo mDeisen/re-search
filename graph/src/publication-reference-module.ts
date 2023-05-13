@@ -1,13 +1,12 @@
-import { ethereum } from "@graphprotocol/graph-ts"
 import {
-  FollowerOnlyReferenceModule,
+  OwnershipTransferred as OwnershipTransferredEvent,
+  PublicationReferenceModule,
   Publish as PublishEvent,
   Review as ReviewEvent
-} from "../generated/FollowerOnlyReferenceModule/FollowerOnlyReferenceModule"
+} from "../generated/PublicationReferenceModule/PublicationReferenceModule"
 import { Profile, Publication, Review } from "../generated/schema"
 
 export function handlePublish(event: PublishEvent): void {
-
   // Update Profile
   let profile = Profile.load(event.params.profileId.toString())
 
@@ -25,7 +24,7 @@ export function handlePublish(event: PublishEvent): void {
 
   entity.profile = profile.id 
   entity.id = event.params.pubId.toString()
-  entity.citedPublications = event.params.citeIds.map(function(e){return e.toString()})
+  entity.citedPublications = event.params.citeIds.map(String)
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -49,7 +48,6 @@ export function handlePublish(event: PublishEvent): void {
     citedAuthor = updateHScore(citedAuthor, event)
     citedAuthor.save()
   }
-
 }
 
 export function handleReview(event: ReviewEvent): void {
@@ -71,7 +69,7 @@ export function handleReview(event: ReviewEvent): void {
 
 // Function that takes profile, calls smart contract and updates hScore
 export function updateHScore(profile: Profile, event: PublishEvent): Profile {
-  let smartContractCall = FollowerOnlyReferenceModule.bind(event.address).try_hIndexOf(event.params.profileId)
+  let smartContractCall = PublicationReferenceModule.bind(event.address).try_hIndexOf(event.params.profileId)
   if (smartContractCall.reverted) {
     profile.hScore = 0
   } else {

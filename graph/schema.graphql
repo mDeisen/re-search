@@ -37,16 +37,32 @@ type Review @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
 
-# type Publish @entity(immutable: true) {
-#   id: Bytes!
-#   profileId: BigInt! # uint256
-#   pubId: BigInt! # uint256
-#   citeIds: [BigInt!]! # uint256[]
-#   blockNumber: BigInt!
-#   blockTimestamp: BigInt!
-#   transactionHash: Bytes!
-# }
+type Publish @entity(immutable: true) {
+  id: Bytes!
+  profileId: BigInt! # uint256
+  pubId: BigInt! # uint256
+  citeIds: [BigInt!]! # uint256[]
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
 
-
-
+type PublicationReferenceModuleReview @entity(immutable: true) {
+  id: Bytes!
+  profileId: BigInt! # uint256
+  profileIdPointed: BigInt! # uint256
+  pubIdPointed: BigInt! # uint256
+  accepted: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
