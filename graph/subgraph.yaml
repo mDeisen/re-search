@@ -6,7 +6,7 @@ dataSources:
     name: PublicationReferenceModule
     network: mumbai
     source:
-      address: "0x0ED8A939018FA02F799fEe2D10da68a9F5b2a314"
+      address: "0xfbFA9a087230b2fA175bA29045fD285C3c8762f0"
       abi: PublicationReferenceModule
     mapping:
       kind: ethereum/events
