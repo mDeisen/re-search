@@ -38,118 +38,126 @@ const PublishingForm = ({ profile }: { profile: ProfileOwnedByMe }) => {
 
   const createPublication = async (text: string) => {
     setCreatingPublication(true);
+    try {
+      toast.loading("Publishing article...", { id: toastId });
 
-    toast.loading("Publishing article...", { id: toastId });
+      if (!wallet || !wallet?.address) return;
 
-    if (!wallet || !wallet?.address) return;
+      // @ts-ignore
+      development.name = "staging";
+      // @ts-ignore
+      development.url = "https://api-sandbox-mumbai.lens.dev";
 
-    // @ts-ignore
-    development.name = "staging";
-    // @ts-ignore
-    development.url = "https://api-sandbox-mumbai.lens.dev";
-
-    const lensClient = new LensClient({
-      environment: development,
-    });
-
-    const challenge = await lensClient.authentication.generateChallenge(
-      wallet?.address
-    );
-
-    if (!walletSigner) return;
-
-    const signature = await walletSigner.signMessage(challenge);
-
-    await lensClient.authentication.authenticate(wallet?.address, signature);
-
-    // check the state with
-    const ok = await lensClient.authentication.isAuthenticated();
-
-    if (!ok) {
-      toast.error("Authentication failed");
-      return;
-    }
-
-    /**
-     * Validate Metadata
-     */
-    const metadata = {
-      appId,
-      attributes: [],
-      content: text,
-      description: "LensPub post made by " + profile.handle,
-      locale: "en-US",
-      mainContentFocus: PublicationMainFocus.TextOnly,
-      metadata_id: v4(),
-      name: "Post created @ ETHGlobal Lisbon w/ LensClient SDK",
-      tags: [],
-      version: "2.0.0",
-    };
-
-    toast.loading("Validating metadata...", { id: toastId });
-
-    const publicationOk = await lensClient.publication.validateMetadata(
-      metadata
-    );
-
-    if (!publicationOk.valid) {
-      toast.error("Publication metadata invalid");
-      return;
-    } else {
-    }
-
-    toast.loading("Uploading metadata to IPFS...", { id: toastId });
-
-    const contentURI = await uploadJSON(metadata);
-
-    const createSetDispatchertypedDataResult =
-      await lensClient.profile.createSetDispatcherTypedData({
-        profileId: profile.id,
+      const lensClient = new LensClient({
+        environment: development,
       });
 
-    const createSetDispatcherData = createSetDispatchertypedDataResult.unwrap();
+      const challenge = await lensClient.authentication.generateChallenge(
+        wallet?.address
+      );
 
-    const createSetDispatchertypedData = await signTypedDataAsync({
-      //   @ts-ignore
-      domain: createSetDispatcherData.typedData.domain,
-      types: createSetDispatcherData.typedData.types,
-      value: createSetDispatcherData.typedData.value,
-    });
+      if (!walletSigner) return;
 
-    toast.loading("Broadcasting transaction...", { id: toastId });
+      const signature = await walletSigner.signMessage(challenge);
 
-    const broadcastResult = await lensClient.transaction.broadcast({
-      id: createSetDispatcherData.id,
-      signature: createSetDispatchertypedData,
-    });
+      await lensClient.authentication.authenticate(wallet?.address, signature);
 
-    if (!isRelayerResult(broadcastResult.unwrap())) {
-      toast.error("Error broadcasting transaction");
-      return;
-    }
-    {
-      toast.loading("Transaction broadcasted...", { id: toastId });
-    }
+      // check the state with
+      const ok = await lensClient.authentication.isAuthenticated();
 
-    await lensClient.publication.createPostViaDispatcher({
-      profileId: profile.id,
-      contentURI,
-      referenceModule: {
-        unknownReferenceModule: {
-          contractAddress: "0x0250DFD011C52496605ceE9D93ce82199c1700aA",
-          data: new AbiCoder().encode(["uint[]", "string"], [[], title]),
+      if (!ok) {
+        toast.error("Authentication failed");
+        return;
+      }
+
+      /**
+       * Validate Metadata
+       */
+      const metadata = {
+        appId,
+        attributes: [],
+        content: text,
+        description: "LensPub post made by " + profile.handle,
+        locale: "en-US",
+        mainContentFocus: PublicationMainFocus.TextOnly,
+        metadata_id: v4(),
+        name: "Post created @ ETHGlobal Lisbon w/ LensClient SDK",
+        tags: [],
+        version: "2.0.0",
+      };
+
+      toast.loading("Validating metadata...", { id: toastId });
+
+      const publicationOk = await lensClient.publication.validateMetadata(
+        metadata
+      );
+
+      if (!publicationOk.valid) {
+        toast.error("Publication metadata invalid");
+        return;
+      } else {
+      }
+
+      toast.loading("Uploading metadata to IPFS...", { id: toastId });
+
+      const contentURI = await uploadJSON(metadata);
+
+      const createSetDispatchertypedDataResult =
+        await lensClient.profile.createSetDispatcherTypedData({
+          profileId: profile.id,
+        });
+
+      const createSetDispatcherData =
+        createSetDispatchertypedDataResult.unwrap();
+
+      const createSetDispatchertypedData = await signTypedDataAsync({
+        //   @ts-ignore
+        domain: createSetDispatcherData.typedData.domain,
+        types: createSetDispatcherData.typedData.types,
+        value: createSetDispatcherData.typedData.value,
+      });
+
+      toast.loading("Broadcasting transaction...", { id: toastId });
+
+      const broadcastResult = await lensClient.transaction.broadcast({
+        id: createSetDispatcherData.id,
+        signature: createSetDispatchertypedData,
+      });
+
+      if (!isRelayerResult(broadcastResult.unwrap())) {
+        toast.error("Error broadcasting transaction");
+        return;
+      }
+      {
+        toast.loading("Transaction broadcasted...", { id: toastId });
+      }
+
+      await lensClient.publication.createPostViaDispatcher({
+        profileId: profile.id,
+        contentURI,
+        referenceModule: {
+          unknownReferenceModule: {
+            contractAddress: "0x0250DFD011C52496605ceE9D93ce82199c1700aA",
+            data: new AbiCoder().encode(
+              ["tuple(uint[],string)"],
+              [[[], title]]
+            ),
+          },
         },
-      },
-      collectModule: {
-        freeCollectModule: {
-          followerOnly: false,
+        collectModule: {
+          freeCollectModule: {
+            followerOnly: false,
+          },
         },
-      },
-    });
+      });
 
-    toast.success("Article Published !", {
-      id: toastId,
-    });
+      toast.success("Article Published !", {
+        id: toastId,
+      });
+    } catch (error) {
+      // @ts-ignore
+      toast.error("Error: " + error.message);
+    }
     setCreatingPublication(false);
   };
 
