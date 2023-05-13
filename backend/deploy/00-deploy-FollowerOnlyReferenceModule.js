@@ -9,7 +9,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     log("----------------------------------------------------")
     const hub = networkConfig[network.config.chainId].hub
     arguments = [hub]
-    const moduleContract = await deploy("FollowerOnlyReferenceModule", {
+    const moduleContract = await deploy("PublicationReferenceModule", {
         from: deployer,
         args: arguments,
         log: true,
