@@ -6,6 +6,8 @@ import {ModuleBase} from "@aave/lens-protocol/contracts/core/modules/ModuleBase.
 import {FollowValidationModuleBase} from "@aave/lens-protocol/contracts/core/modules/FollowValidationModuleBase.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
+error FollowerOnlyReferenceModule__HIndextTooLow(uint profileId);
+
 /**
  * @title FollowerOnlyReferenceModule
  * @author Lens Protocol
@@ -15,12 +17,37 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
  */
 contract FollowerOnlyReferenceModule is FollowValidationModuleBase, IReferenceModule {
     // Mapping of Publicaiton Ids to an Array of Paublication IDs its mentioned in
-    mapping(uint => uint[]) profileIdToPublicationIds;
-    mapping(uint => uint[]) publicationIdToMonthionIds;
+
+    struct Article {
+        uint author;
+        uint[] citesIds;
+        uint[] acceptedBy;
+    }
+
+    struct Researcher {
+        uint[] articles;
+    }
+
+    struct IntialiseData {
+        uint[] citeIds;
+    }
+
+    struct CommentData {
+        bool accepted;
+    }
+
+    mapping(uint => Article) s_pubsIdToArticle;
+    mapping(uint => Researcher) s_profileIdToReseacher;
+
+    uint immutable H_INDEX_THREASHOLD = 2;
 
     constructor(address hub) ModuleBase(hub) {}
 
     event Publish(uint256 profileId, uint256 pubId, uint[] citeIds);
+
+    // event Comment()
+
+    // TODO event Commented
 
     /**
      * @dev There is nothing needed at initialization.
@@ -30,10 +57,13 @@ contract FollowerOnlyReferenceModule is FollowValidationModuleBase, IReferenceMo
         uint256 pubId,
         bytes calldata data
     ) external override returns (bytes memory) {
-        uint[] memory citeIds = abi.decode(data, (uint[]));
-        publicationIdToMonthionIds[pubId] = citeIds;
-        profileIdToPublicationIds[profileId].push(pubId);
-        emit Publish(profileId, pubId, citeIds);
+        IntialiseData memory args = abi.decode(data, (IntialiseData));
+        s_pubsIdToArticle[pubId].citesIds = args.citeIds;
+        s_pubsIdToArticle[pubId].author = pubId;
+        s_profileIdToReseacher[profileId].articles.push(pubId);
+        emit Publish(profileId, pubId, args.citeIds);
+
+        // TODO Check Polygon Id
         return new bytes(0);
     }
 
@@ -47,11 +77,20 @@ contract FollowerOnlyReferenceModule is FollowValidationModuleBase, IReferenceMo
         uint256 profileIdPointed,
         uint256 pubIdPointed,
         bytes calldata data
-    ) external view override {
+    ) external override {
         address commentCreator = IERC721(HUB).ownerOf(profileId);
         _checkFollowValidity(profileIdPointed, commentCreator);
+        CommentData memory args = abi.decode(data, (CommentData));
 
-        //to do only H Indedx > 2
+        bool highHIndex = hIndexOf(profileId) < H_INDEX_THREASHOLD;
+
+        if (highHIndex || isCited(profileId, pubIdPointed)) {
+            revert FollowerOnlyReferenceModule__HIndextTooLow(profileIdPointed);
+        }
+
+        if (highHIndex && args.accepted) {
+            s_pubsIdToArticle[pubIdPointed].acceptedBy.push(profileId);
+        }
     }
 
     /**
@@ -69,17 +108,31 @@ contract FollowerOnlyReferenceModule is FollowValidationModuleBase, IReferenceMo
         _checkFollowValidity(profileIdPointed, mirrorCreator);
     }
 
-    function calcHIndex(uint256 profileId) private view returns (uint) {
+    function hIndexOf(uint256 profileId) private view returns (uint) {
         uint hIndex = 0;
-        uint[] memory pubs = profileIdToPublicationIds[profileId];
-        uint totalPubs = 0;
+        Researcher memory researcher = s_profileIdToReseacher[profileId];
+        uint[] memory pubs = researcher.articles;
+        uint totalPubs = pubs.length;
 
         for (uint i = 0; i < pubs.length; i++) {
-            if (publicationIdToMonthionIds[pubs[i]].length >= totalPubs) {
+            uint numberOfCites = s_pubsIdToArticle[pubs[i]].citesIds.length;
+            if (numberOfCites >= totalPubs) {
                 hIndex++;
             }
         }
 
         return hIndex;
+    }
+
+    function isCited(uint256 profileId, uint pubId) private view returns (bool) {
+        uint[] memory citeIds = s_pubsIdToArticle[pubId].citesIds; // ids
+
+        for (uint i = 0; i < citeIds.length; i++) {
+            uint author = s_pubsIdToArticle[citeIds[i]].author;
+            if (author == profileId) {
+                return true;
+            }
+        }
+        return false;
     }
 }
