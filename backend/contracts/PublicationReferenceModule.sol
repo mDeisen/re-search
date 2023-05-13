@@ -46,10 +46,6 @@ contract FollowerOnlyReferenceModule is FollowValidationModuleBase, IReferenceMo
     event Publish(uint profileId, uint pubId, uint[] citeIds);
     event Review(uint profileId, uint profileIdPointed, uint pubIdPointed, bool accepted);
 
-    // event Comment()
-
-    // TODO event Commented
-
     /**
      * @dev There is nothing needed at initialization.
      */
