@@ -1,0 +1,52 @@
+type Profile @entity(immutable: false) {
+  id: String!
+  "As calculated by the contract from the reviews"
+  hScore: Int!
+  "List of publications aggregated from the publication entity"
+  publications: [Publication!]! @derivedFrom(field: "profile")
+  "List of written reviews aggregated from the review entity"
+  writtenReviews: [Review!]! @derivedFrom(field: "publicationAuthorProfile")
+}
+
+type Publication @entity(immutable: true) {
+  id: String!
+  "Author profile of the publication"
+  profile: Profile!
+  "List of cited publications"
+  citedPublications: [Publication!]!
+  "List of publications that cite this publication"
+  citedByPublications: [Publication!]! @derivedFrom(field: "citedPublications")
+  "List of reviews of this publication"
+  reviews: [Review!]! @derivedFrom(field: "publication") 
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Review @entity(immutable: true) {
+  id: Bytes!
+  "Review author profile"
+  reviewAuthorProfile: Profile!
+  "Publication reviewed"
+  publication: Publication!
+  "Reviewed publication author profile"
+  publicationAuthorProfile: Profile!
+  "Review agrees with the publication"
+  accepted: Boolean! 
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# type Publish @entity(immutable: true) {
+#   id: Bytes!
+#   profileId: BigInt! # uint256
+#   pubId: BigInt! # uint256
+#   citeIds: [BigInt!]! # uint256[]
+#   blockNumber: BigInt!
+#   blockTimestamp: BigInt!
+#   transactionHash: Bytes!
+# }
+
+
+
