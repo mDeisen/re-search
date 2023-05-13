@@ -6,7 +6,7 @@ dataSources:
     name: PublicationReferenceModule
     network: mumbai
     source:
-      address: "0xfbFA9a087230b2fA175bA29045fD285C3c8762f0"
+      address: "0x0250DFD011C52496605ceE9D93ce82199c1700aA"
       abi: PublicationReferenceModule
     mapping:
       kind: ethereum/events
@@ -20,7 +20,7 @@ dataSources:
         - name: PublicationReferenceModule
           file: ./abis/PublicationReferenceModule.json
       eventHandlers:
-        - event: Publish(uint256,uint256,uint256[])
+        - event: Publish(uint256,uint256,uint256[],string)
           handler: handlePublish
         - event: Review(uint256,uint256,uint256,bool)
           handler: handleReview

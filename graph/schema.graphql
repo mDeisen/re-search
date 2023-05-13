@@ -10,6 +10,8 @@ type Profile @entity(immutable: false) {
 
 type Publication @entity(immutable: true) {
   id: String!
+  "Publication title"
+  title: String!
   "Author profile of the publication"
   profile: Profile!
   "List of cited publications"

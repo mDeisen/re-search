@@ -5,6 +5,7 @@ import {
   Review as ReviewEvent
 } from "../generated/PublicationReferenceModule/PublicationReferenceModule"
 import { Profile, Publication, Review } from "../generated/schema"
+import { ipfs } from '@graphprotocol/graph-ts'
 
 export function handlePublish(event: PublishEvent): void {
   // Update Profile
@@ -25,7 +26,8 @@ export function handlePublish(event: PublishEvent): void {
   entity.profile = profile.id 
   entity.id = event.params.pubId.toString()
   entity.citedPublications = event.params.citeIds.map<string>(x => x.toString())
-
+  entity.title = event.params.title
+  
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
   entity.transactionHash = event.transaction.hash

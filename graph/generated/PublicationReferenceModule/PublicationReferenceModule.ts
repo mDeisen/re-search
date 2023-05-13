@@ -56,6 +56,10 @@ export class Publish__Params {
   get citeIds(): Array<BigInt> {
     return this._event.parameters[2].value.toBigIntArray();
   }
+
+  get title(): string {
+    return this._event.parameters[3].value.toString();
+  }
 }
 
 export class Review extends ethereum.Event {

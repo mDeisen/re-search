@@ -1,14 +1,32 @@
 [
   {
-    "inputs": [{ "internalType": "address", "name": "hub", "type": "address" }],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "hub",
+        "type": "address"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
-  { "inputs": [], "name": "FollowInvalid", "type": "error" },
-  { "inputs": [], "name": "InitParamsInvalid", "type": "error" },
+  {
+    "inputs": [],
+    "name": "FollowInvalid",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InitParamsInvalid",
+    "type": "error"
+  },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "profileId", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      }
     ],
     "name": "PublicationReferenceModule__HIndextTooLow",
     "type": "error"
@@ -52,6 +70,12 @@
         "internalType": "uint256[]",
         "name": "citeIds",
         "type": "uint256[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "title",
+        "type": "string"
       }
     ],
     "name": "Publish",
@@ -91,47 +115,99 @@
   {
     "inputs": [],
     "name": "HUB",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "profileId", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      }
     ],
     "name": "hIndexOf",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "profileId", "type": "uint256" },
-      { "internalType": "uint256", "name": "pubId", "type": "uint256" },
-      { "internalType": "bytes", "name": "data", "type": "bytes" }
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pubId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
     ],
     "name": "initializeReferenceModule",
-    "outputs": [{ "internalType": "bytes", "name": "", "type": "bytes" }],
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "owner",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "profileId", "type": "uint256" },
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
       {
         "internalType": "uint256",
         "name": "profileIdPointed",
         "type": "uint256"
       },
-      { "internalType": "uint256", "name": "pubIdPointed", "type": "uint256" },
-      { "internalType": "bytes", "name": "data", "type": "bytes" }
+      {
+        "internalType": "uint256",
+        "name": "pubIdPointed",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
     ],
     "name": "processComment",
     "outputs": [],
@@ -140,14 +216,26 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "profileId", "type": "uint256" },
+      {
+        "internalType": "uint256",
+        "name": "profileId",
+        "type": "uint256"
+      },
       {
         "internalType": "uint256",
         "name": "profileIdPointed",
         "type": "uint256"
       },
-      { "internalType": "uint256", "name": "pubIdPointed", "type": "uint256" },
-      { "internalType": "bytes", "name": "data", "type": "bytes" }
+      {
+        "internalType": "uint256",
+        "name": "pubIdPointed",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
     ],
     "name": "processMirror",
     "outputs": [],
@@ -162,7 +250,13 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "bool", "name": "enabled", "type": "bool" }],
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "enabled",
+        "type": "bool"
+      }
+    ],
     "name": "setRequireHIndexFlag",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -170,7 +264,11 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "newOwner", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
     ],
     "name": "transferOwnership",
     "outputs": [],
