@@ -33,6 +33,7 @@ contract PublicationReferenceModule is Ownable, FollowValidationModuleBase, IRef
 
     struct IntialiseData {
         uint[] citeIds;
+        string title;
     }
 
     struct CommentData {
@@ -52,7 +53,7 @@ contract PublicationReferenceModule is Ownable, FollowValidationModuleBase, IRef
     /// Events  //
     //////////////
 
-    event Publish(uint profileId, uint pubId, uint[] citeIds);
+    event Publish(uint profileId, uint pubId, uint[] citeIds, string title);
     event Review(uint profileId, uint profileIdPointed, uint pubIdPointed, bool accepted);
 
     /////////////////
@@ -82,7 +83,7 @@ contract PublicationReferenceModule is Ownable, FollowValidationModuleBase, IRef
         setCiteIds(pubId, args.citeIds);
         setAuthor(pubId, profileId);
         addArticle(profileId, pubId);
-        emit Publish(profileId, pubId, args.citeIds);
+        emit Publish(profileId, pubId, args.citeIds, args.title);
 
         // TODO Check Polygon Id
         return new bytes(0);
