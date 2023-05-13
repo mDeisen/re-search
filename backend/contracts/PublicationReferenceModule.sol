@@ -43,7 +43,8 @@ contract FollowerOnlyReferenceModule is FollowValidationModuleBase, IReferenceMo
 
     constructor(address hub) ModuleBase(hub) {}
 
-    event Publish(uint256 profileId, uint256 pubId, uint[] citeIds);
+    event Publish(uint profileId, uint pubId, uint[] citeIds);
+    event Review(uint profileId, uint profileIdPointed, uint pubIdPointed, bool accepted);
 
     // event Comment()
 
@@ -91,6 +92,8 @@ contract FollowerOnlyReferenceModule is FollowValidationModuleBase, IReferenceMo
         if (highHIndex && args.accepted) {
             s_pubsIdToArticle[pubIdPointed].acceptedBy.push(profileId);
         }
+
+        emit Review(profileId, profileIdPointed, pubIdPointed, args.accepted);
     }
 
     /**
