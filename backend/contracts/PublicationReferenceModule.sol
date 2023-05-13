@@ -5,6 +5,7 @@ import {IReferenceModule} from "@aave/lens-protocol/contracts/interfaces/IRefere
 import {ModuleBase} from "@aave/lens-protocol/contracts/core/modules/ModuleBase.sol";
 import {FollowValidationModuleBase} from "@aave/lens-protocol/contracts/core/modules/FollowValidationModuleBase.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 error FollowerOnlyReferenceModule__HIndextTooLow(uint profileId);
 
@@ -15,7 +16,7 @@ error FollowerOnlyReferenceModule__HIndextTooLow(uint profileId);
  * @notice A simple reference module that validates that comments or mirrors originate from a profile owned
  * by a follower.
  */
-contract FollowerOnlyReferenceModule is FollowValidationModuleBase, IReferenceModule {
+contract FollowerOnlyReferenceModule is Ownable, FollowValidationModuleBase, IReferenceModule {
     // Mapping of Publicaiton Ids to an Array of Paublication IDs its mentioned in
 
     struct Article {
@@ -40,6 +41,7 @@ contract FollowerOnlyReferenceModule is FollowValidationModuleBase, IReferenceMo
     mapping(uint => Researcher) s_profileIdToReseacher;
 
     uint immutable H_INDEX_THREASHOLD = 2;
+    bool requireHIndexFlag = false;
 
     constructor(address hub) ModuleBase(hub) {}
 
@@ -81,7 +83,7 @@ contract FollowerOnlyReferenceModule is FollowValidationModuleBase, IReferenceMo
 
         bool highHIndex = hIndexOf(profileId) < H_INDEX_THREASHOLD;
 
-        if (highHIndex || isCited(profileId, pubIdPointed)) {
+        if (requireHIndexFlag || highHIndex || isCited(profileId, pubIdPointed)) {
             revert FollowerOnlyReferenceModule__HIndextTooLow(profileIdPointed);
         }
 
@@ -107,7 +109,7 @@ contract FollowerOnlyReferenceModule is FollowValidationModuleBase, IReferenceMo
         _checkFollowValidity(profileIdPointed, mirrorCreator);
     }
 
-    function hIndexOf(uint256 profileId) private view returns (uint) {
+    function hIndexOf(uint256 profileId) public view returns (uint) {
         uint hIndex = 0;
         Researcher memory researcher = s_profileIdToReseacher[profileId];
         uint[] memory pubs = researcher.articles;
@@ -133,5 +135,9 @@ contract FollowerOnlyReferenceModule is FollowValidationModuleBase, IReferenceMo
             }
         }
         return false;
+    }
+
+    function setRequireHIndexFlag(bool enabled) external onlyOwner {
+        requireHIndexFlag = enabled;
     }
 }

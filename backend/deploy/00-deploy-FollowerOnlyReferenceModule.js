@@ -1,5 +1,5 @@
 const { network } = require("hardhat")
-const { developmentChains } = require("../helper-hardhat-config")
+const { developmentChains, networkConfig } = require("../helper-hardhat-config")
 const { verify } = require("../utils/verify")
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
@@ -7,7 +7,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     const { deployer } = await getNamedAccounts()
 
     log("----------------------------------------------------")
-    arguments = []
+    const hub = networkConfig[network.config.chainId].hub
+    arguments = [hub]
     const moduleContract = await deploy("FollowerOnlyReferenceModule", {
         from: deployer,
         args: arguments,
@@ -20,6 +21,16 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         log("Verifying...")
         await verify(moduleContract.address, arguments)
     }
+
+
+
+    if(network.name == "mumbai"){
+        log("Whitelisting on Mumbai Governance Test Net")
+        const govContractAdress = networkConfig[network.config.chainId].gov;
+        const govContract = await hre.ethers.getContractAt("ILensHub", govContractAdress);
+        await govContract.whitelistReferenceModule(moduleContract.address, true);
+    }
+    
 }
 
 module.exports.tags = ["all", "moduleContract", "main"]
