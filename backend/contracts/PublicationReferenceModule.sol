@@ -7,17 +7,19 @@ import {FollowValidationModuleBase} from "@aave/lens-protocol/contracts/core/mod
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-error FollowerOnlyReferenceModule__HIndextTooLow(uint profileId);
+error PublicationReferenceModule__HIndextTooLow(uint profileId);
 
 /**
- * @title FollowerOnlyReferenceModule
- * @author Lens Protocol
+ * @title PublicationReferenceModule
+ * @author Sean Pleaner, Nezzar Kefif, Mattis Deisen
  *
- * @notice A simple reference module that validates that comments or mirrors originate from a profile owned
- * by a follower.
+ * @notice Reference Module to encapsulate the relationships between Articles, Reseacrchers and the logic for review.
+ *
  */
-contract FollowerOnlyReferenceModule is Ownable, FollowValidationModuleBase, IReferenceModule {
-    // Mapping of Publicaiton Ids to an Array of Paublication IDs its mentioned in
+contract PublicationReferenceModule is Ownable, FollowValidationModuleBase, IReferenceModule {
+    /////////////////////////
+    /// Type Declarations  //
+    /////////////////////////
 
     struct Article {
         uint author;
@@ -37,19 +39,39 @@ contract FollowerOnlyReferenceModule is Ownable, FollowValidationModuleBase, IRe
         bool accepted;
     }
 
+    ///////////////////////
+    /// State Variables  //
+    ///////////////////////
+
     mapping(uint => Article) s_pubsIdToArticle;
     mapping(uint => Researcher) s_profileIdToReseacher;
-
     uint immutable H_INDEX_THREASHOLD = 2;
     bool requireHIndexFlag = false;
 
-    constructor(address hub) ModuleBase(hub) {}
+    //////////////
+    /// Events  //
+    //////////////
 
     event Publish(uint profileId, uint pubId, uint[] citeIds);
     event Review(uint profileId, uint profileIdPointed, uint pubIdPointed, bool accepted);
 
+    /////////////////
+    /// Functions  //
+    /////////////////
+
+    // constructor
+    constructor(address hub) ModuleBase(hub) {}
+
+    // receive function -- none
+    // fallback function -- none
+
+    /////////////////
+    /// External   //
+    /////////////////
+
     /**
-     * @dev There is nothing needed at initialization.
+     * @notice Handles the initial publishing of an article.
+     * @return nothing to be returnered.
      */
     function initializeReferenceModule(
         uint256 profileId,
@@ -57,9 +79,9 @@ contract FollowerOnlyReferenceModule is Ownable, FollowValidationModuleBase, IRe
         bytes calldata data
     ) external override returns (bytes memory) {
         IntialiseData memory args = abi.decode(data, (IntialiseData));
-        s_pubsIdToArticle[pubId].citesIds = args.citeIds;
-        s_pubsIdToArticle[pubId].author = pubId;
-        s_profileIdToReseacher[profileId].articles.push(pubId);
+        setCiteIds(pubId, args.citeIds);
+        setAuthor(pubId, profileId);
+        addArticle(profileId, pubId);
         emit Publish(profileId, pubId, args.citeIds);
 
         // TODO Check Polygon Id
@@ -67,9 +89,9 @@ contract FollowerOnlyReferenceModule is Ownable, FollowValidationModuleBase, IRe
     }
 
     /**
-     * @notice Validates that the commenting profile's owner is a follower.
+     * @notice Handles the Comment logic
      *
-     * NOTE: We don't need to care what the pointed publication is in this context.
+     * @dev comments include call data to determine if the author accepts the paper.
      */
     function processComment(
         uint256 profileId,
@@ -81,14 +103,12 @@ contract FollowerOnlyReferenceModule is Ownable, FollowValidationModuleBase, IRe
         _checkFollowValidity(profileIdPointed, commentCreator);
         CommentData memory args = abi.decode(data, (CommentData));
 
-        bool highHIndex = hIndexOf(profileId) < H_INDEX_THREASHOLD;
-
-        if (requireHIndexFlag || highHIndex || isCited(profileId, pubIdPointed)) {
-            revert FollowerOnlyReferenceModule__HIndextTooLow(profileIdPointed);
+        if (requireHIndexFlag || highEngoughHIndex(profileId) || isCited(profileId, pubIdPointed)) {
+            revert PublicationReferenceModule__HIndextTooLow(profileIdPointed);
         }
 
-        if (highHIndex && args.accepted) {
-            s_pubsIdToArticle[pubIdPointed].acceptedBy.push(profileId);
+        if (requireHIndexFlag || (highEngoughHIndex(profileId) && args.accepted)) {
+            addAccepted(pubIdPointed, profileId);
         }
 
         emit Review(profileId, profileIdPointed, pubIdPointed, args.accepted);
@@ -121,10 +141,27 @@ contract FollowerOnlyReferenceModule is Ownable, FollowValidationModuleBase, IRe
                 hIndex++;
             }
         }
-
         return hIndex;
     }
 
+    function setRequireHIndexFlag(bool enabled) external onlyOwner {
+        requireHIndexFlag = enabled;
+    }
+
+    ///////////////
+    ///  Public  //
+    ///////////////
+
+    ///////////////
+    /// Internal //
+    ///////////////
+
+    ///////////////
+    /// Private  //
+    ///////////////
+
+    ///
+    /// @dev checks if a publicaiton cites a given Researcher
     function isCited(uint256 profileId, uint pubId) private view returns (bool) {
         uint[] memory citeIds = s_pubsIdToArticle[pubId].citesIds; // ids
 
@@ -137,7 +174,23 @@ contract FollowerOnlyReferenceModule is Ownable, FollowValidationModuleBase, IRe
         return false;
     }
 
-    function setRequireHIndexFlag(bool enabled) external onlyOwner {
-        requireHIndexFlag = enabled;
+    function setCiteIds(uint pubId, uint[] memory citeIds) private {
+        s_pubsIdToArticle[pubId].citesIds = citeIds;
+    }
+
+    function setAuthor(uint pubId, uint profileId) private {
+        s_pubsIdToArticle[pubId].author = profileId;
+    }
+
+    function addArticle(uint profileId, uint pubId) private {
+        s_profileIdToReseacher[profileId].articles.push(pubId);
+    }
+
+    function highEngoughHIndex(uint profileId) private view returns (bool) {
+        return hIndexOf(profileId) >= H_INDEX_THREASHOLD;
+    }
+
+    function addAccepted(uint pubId, uint profileId) private {
+        s_pubsIdToArticle[pubId].acceptedBy.push(profileId);
     }
 }

@@ -22,8 +22,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         await verify(moduleContract.address, arguments)
     }
 
-
-
     if(network.name == "mumbai"){
         log("Whitelisting on Mumbai Governance Test Net")
         const govContractAdress = networkConfig[network.config.chainId].gov;
