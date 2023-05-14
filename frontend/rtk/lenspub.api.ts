@@ -111,6 +111,7 @@ export const publicationsAPI = createApi({
       },
     }),
     getPublication: builder.query<MergedPublication, string>({
+      //  @ts-ignore
       queryFn: async (
         publicationId,
         { signal, dispatch, getState },
