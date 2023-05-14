@@ -29,6 +29,18 @@ export const publicationsAPI = createApi({
   reducerPath: "publications",
   baseQuery: graphqlBaseQuery({ baseUrl: subgraphUrl }),
   endpoints: (builder) => ({
+    getProfile: builder.query({
+      query: (profileId) => ({
+        body: gql`
+        query GetProfile($profileId: String!) {
+          profile(id: $profileId) {
+            id
+            hScore
+          }
+        }`,
+        variables: { profileId },
+      })
+    }),
     listPublications: builder.query<
       MergedPublication[],
       { titleSearchString: string }
@@ -95,15 +107,15 @@ export const publicationsAPI = createApi({
         }));
 
         // Sort by lensPub.createdAt
-        mergePubs.sort((a, b) => {
-          if (a.lensPub.createdAt < b.lensPub.createdAt) {
-            return -1;
-          } else if (a.lensPub.createdAt > b.lensPub.createdAt) {
-            return 1;
-          } else {
-            return 0;
-          }
-        });
+        // mergePubs.sort((a, b) => {
+        //   if (a.lensPub.createdAt < b.lensPub.createdAt) {
+        //     return -1;
+        //   } else if (a.lensPub.createdAt > b.lensPub.createdAt) {
+        //     return 1;
+        //   } else {
+        //     return 0;
+        //   }
+        // });
 
         return {
           data: mergePubs,
@@ -170,5 +182,5 @@ export const publicationsAPI = createApi({
   }),
 });
 
-export const { useListPublicationsQuery, useGetPublicationQuery } =
+export const { useListPublicationsQuery, useGetPublicationQuery, useGetProfileQuery } =
   publicationsAPI;

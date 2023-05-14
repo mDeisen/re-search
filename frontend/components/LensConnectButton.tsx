@@ -1,9 +1,11 @@
+import { useGetProfileQuery } from "@/rtk/lenspub.api";
 import {
   useWalletLogin,
   useActiveProfile,
   MediaSet,
 } from "@lens-protocol/react-web";
 import classNames from "classnames";
+import { BigNumber } from "ethers";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 
@@ -13,6 +15,11 @@ function LensConnectButton() {
     error,
     loading: profileIsLoading,
   } = useActiveProfile();
+
+  const { data } = useGetProfileQuery(
+    BigNumber.from(profile?.id ?? "0").toString() as string
+  );
+
   const {
     execute: login,
     error: loginError,
@@ -64,6 +71,7 @@ function LensConnectButton() {
           )}
 
           <p className="font-bold">{profile?.handle}</p>
+          <p>hIndex: {data?.profile?.hScore ?? "0"}</p>
         </div>
       )}
     </div>
