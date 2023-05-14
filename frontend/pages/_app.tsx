@@ -22,7 +22,9 @@ export default function App({ Component, pageProps }: AppProps) {
             </Link>
             <div className="flex flex-row items-center">
               <Link href="/publish">
-                <button className="btn">Create Publication</button>
+                <button className="btn btn-outline btn-primary">
+                  Create Publication
+                </button>
               </Link>
               <button
                 className="btn btn-square ml-2"
