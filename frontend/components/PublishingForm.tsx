@@ -20,12 +20,20 @@ import {
 import { appId } from "@/constants";
 import { AbiCoder } from "ethers/lib/utils.js";
 import { useSignTypedData } from "wagmi";
+import { useListPublicationsQuery } from "@/rtk/lenspub.api";
+import { cosmeticFilter } from "@/pages";
+import { BigNumber } from "ethers";
 
 const PublicationEditor = dynamic(() => import("@/components/Editor"), {
   ssr: false,
 });
 
 const PublishingForm = ({ profile }: { profile: ProfileOwnedByMe }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [citeIds, setCiteIds] = useState<string[]>([]);
+  const { data: pubs } = useListPublicationsQuery({
+    titleSearchString: searchTerm,
+  });
   const toastId = "publishing-toast";
   const { signTypedDataAsync } = useSignTypedData();
   const { data: wallet } = useActiveWallet();
@@ -140,7 +148,7 @@ const PublishingForm = ({ profile }: { profile: ProfileOwnedByMe }) => {
             contractAddress: "0x0250DFD011C52496605ceE9D93ce82199c1700aA",
             data: new AbiCoder().encode(
               ["tuple(uint[],string)"],
-              [[[], title]]
+              [[citeIds.map((n) => BigNumber.from(n).toHexString()), title]]
             ),
           },
         },
@@ -182,6 +190,42 @@ const PublishingForm = ({ profile }: { profile: ProfileOwnedByMe }) => {
             }}
           />
         </div>
+      </div>
+      <div className="flex flex-col gap-2 mt-2 border bg-slate-50 p-4">
+        <div className="flex flex-col ">
+          <label>Mentions</label>
+          <input
+            className="input input-bordered"
+            placeholder="Search for publications by title..."
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+            }}
+          />
+        </div>
+        {pubs?.filter(cosmeticFilter).map((pub) => {
+          const cited = citeIds.includes(pub.graphPub.id);
+          return (
+            <div
+              key={pub.graphPub.id}
+              className="flex flex-row items-center w-full justify-between border-b"
+            >
+              <p>
+                <span className="font-bold">{pub.graphPub.title}</span> by{" "}
+                {pub.lensPub.profile.handle}
+              </p>
+              <button
+                className={classNames("btn btn-secondary btn-sm", {
+                  "btn-disabled": cited,
+                })}
+                onClick={() => {
+                  setCiteIds([...citeIds, pub.graphPub.id]);
+                }}
+              >
+                {cited ? "Cited" : "Cite"}
+              </button>
+            </div>
+          );
+        })}
       </div>
       <div className="py-2 flex flex-row justify-end">
         <button

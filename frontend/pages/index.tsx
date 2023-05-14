@@ -60,7 +60,10 @@ export default function Home() {
         {publications
           ?.filter(cosmeticFilter)
           .map(
-            ({ graphPub: { id, title }, lensPub: { createdAt, profile } }) => {
+            ({
+              graphPub: { id, title, citedPublications },
+              lensPub: { createdAt, profile },
+            }) => {
               return (
                 <Link key={id} href={`/publication/${id}`}>
                   <div className="border p-2 hover:bg-gray-50">
@@ -68,6 +71,7 @@ export default function Home() {
                     <p className="text-blue-400 italic font-extralight">
                       {profile.handle}
                       <span> - {dayjs(createdAt).format("MMMM YYYY")}</span>
+                      <span> - Citations: {citedPublications.length}</span>
                     </p>
                   </div>
                 </Link>
@@ -79,6 +83,6 @@ export default function Home() {
   );
 }
 
-const cosmeticFilter = ({ graphPub: { title } }: MergedPublication) => {
+export const cosmeticFilter = ({ graphPub: { title } }: MergedPublication) => {
   return title !== "";
 };

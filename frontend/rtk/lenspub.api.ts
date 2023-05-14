@@ -11,6 +11,9 @@ type LenspubPublication = {
     profile: {
         id: string;
     }
+    citedPublications: {
+        id: string;
+    }[]
 }
 
 export type MergedPublication = { graphPub: LenspubPublication; lensPub: PublicationFragment };
@@ -38,12 +41,17 @@ export const publicationsAPI = createApi({
                 profile {
                   id
                 }
+                citedPublications {
+                  id
+                }
               }
             }
           `,
           variables: { titleSearchString },
         //   @ts-ignore
         }).then((res) => res.data.publications) as LenspubPublication[];
+
+        console.log(pubs);
 
         // @ts-ignore
         development.name = "staging";
