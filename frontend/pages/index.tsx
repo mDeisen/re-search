@@ -1,4 +1,4 @@
-import { useListPublicationsQuery } from "@/rtk/lenspub.api";
+import { MergedPublication, useListPublicationsQuery } from "@/rtk/lenspub.api";
 import dayjs, { Dayjs } from "dayjs";
 import Link from "next/link";
 import { useState } from "react";
@@ -57,21 +57,28 @@ export default function Home() {
         className="input input-bordered input-primary w-full"
       />
       <div className="flex flex-col gap-2 mt-2">
-        {publications?.map(({ title, id }: { id: string; title: string }) => {
-          return (
-            <Link key={id} href={`/publication/${id}`}>
-              <div className="border p-2 hover:bg-gray-50">
-                <h2 className="text-xl font-bold">{title}</h2>
-                <p className="text-blue-400 italic font-extralight">
-                  {"Author"}
-                  <span> - {dayjs().format("MMMM YYYY")}</span>
-                </p>
-                <p className="font-normal">{"Abstract"}</p>
-              </div>
-            </Link>
-          );
-        })}
+        {publications
+          ?.filter(cosmeticFilter)
+          .map(
+            ({ graphPub: { id, title }, lensPub: { createdAt, profile } }) => {
+              return (
+                <Link key={id} href={`/publication/${id}`}>
+                  <div className="border p-2 hover:bg-gray-50">
+                    <h2 className="text-xl font-bold">{title}</h2>
+                    <p className="text-blue-400 italic font-extralight">
+                      {profile.handle}
+                      <span> - {dayjs(createdAt).format("MMMM YYYY")}</span>
+                    </p>
+                  </div>
+                </Link>
+              );
+            }
+          )}
       </div>
     </main>
   );
 }
+
+const cosmeticFilter = ({ graphPub: { title } }: MergedPublication) => {
+  return title !== "";
+};
