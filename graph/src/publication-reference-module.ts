@@ -39,8 +39,6 @@ export function handlePublish(event: PublishEvent): void {
     if (citedPublication == null) {
       continue
     }
-    citedPublication.citedByPublications.push(entity.id)
-    citedPublication.save()
     // Update h score of cited author
     let citedAuthor = Profile.load(citedPublication.profile)
     if (citedAuthor == null) { 

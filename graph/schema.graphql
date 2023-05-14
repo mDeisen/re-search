@@ -16,9 +16,7 @@ type Publication @entity(immutable: true) {
   profile: Profile!
   "List of cited publications"
   citedPublications: [Publication!]!
-  "List of publications that cite this publication"
-  citedByPublications: [Publication!]! @derivedFrom(field: "citedPublications")
-  "List of reviews of this publication"
+  # "List of publications that cite this publication"
   reviews: [Review!]! @derivedFrom(field: "publication") 
   blockNumber: BigInt!
   blockTimestamp: BigInt!
