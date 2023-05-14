@@ -1,3 +1,4 @@
+import { useListPublicationsQuery } from "@/rtk/lenspub.api";
 import dayjs, { Dayjs } from "dayjs";
 import Link from "next/link";
 
@@ -40,6 +41,8 @@ export const mock_articles: MockArticle[] = [
 ];
 
 export default function Home() {
+  const { data: publications } = useListPublicationsQuery({});
+
   return (
     <main className={`flex min-h-screen flex-col p-3`}>
       <input
@@ -48,16 +51,16 @@ export default function Home() {
         className="input input-bordered input-primary w-full"
       />
       <div className="flex flex-col gap-2 mt-2">
-        {mock_articles.map((article: MockArticle) => {
+        {publications?.map(({ title, id }: { id: string; title: string }) => {
           return (
-            <Link key={article.title} href={`/publication/${article.id}`}>
+            <Link key={id} href={`/publication/${id}`}>
               <div className="border p-2 hover:bg-gray-50">
-                <h2 className="text-xl font-bold">{article.title}</h2>
+                <h2 className="text-xl font-bold">{title}</h2>
                 <p className="text-blue-400 italic font-extralight">
-                  {article.author}
-                  <span> - {article.date.format("MMMM YYYY")}</span>
+                  {"Author"}
+                  <span> - {dayjs().format("MMMM YYYY")}</span>
                 </p>
-                <p className="font-normal">{article.abstract}</p>
+                <p className="font-normal">{"Abstract"}</p>
               </div>
             </Link>
           );
