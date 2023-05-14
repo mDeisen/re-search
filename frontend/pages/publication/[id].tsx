@@ -31,8 +31,8 @@ const PublicationPage = () => {
   return (
     <div className="flex flex-col justify-center items-center">
       <div className="w-2/3">
-        <h1 className="text-2xl border">{data?.graphPub.title}</h1>
-        <div className=" border mx-auto" dangerouslySetInnerHTML={response} />
+        <h1 className="text-2xl">{data?.graphPub.title}</h1>
+        <div className="mx-auto" dangerouslySetInnerHTML={response} />
         <form onSubmit={handleSubmit} className="">
           <br />
           <hr />
