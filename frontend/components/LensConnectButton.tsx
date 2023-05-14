@@ -56,9 +56,9 @@ function LensConnectButton() {
         <div className="flex flex-row justify-center items-center p-2 border gap-2 h-full">
           {profile?.picture && (
             <img
-              src={`https://ipfs.io/ipfs/${
-                (profile?.picture as MediaSet).original.url.split("//")[1]
-              }`}
+              src={parseProfileImage(
+                (profile?.picture as MediaSet).original.url
+              )}
               className="h-8 w-8"
             />
           )}
@@ -69,5 +69,13 @@ function LensConnectButton() {
     </div>
   );
 }
+
+const parseProfileImage = (string: string) => {
+  if (string.startsWith("ipfs://")) {
+    return "https://ipfs.io/ipfs/" + string.split("//")[1];
+  }
+
+  return string;
+};
 
 export default LensConnectButton;
