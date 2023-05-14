@@ -1,6 +1,7 @@
 import { useListPublicationsQuery } from "@/rtk/lenspub.api";
 import dayjs, { Dayjs } from "dayjs";
 import Link from "next/link";
+import { useState } from "react";
 
 type MockArticle = {
   id: string;
@@ -41,12 +42,17 @@ export const mock_articles: MockArticle[] = [
 ];
 
 export default function Home() {
-  const { data: publications } = useListPublicationsQuery({});
+  const [searchString, setSearchString] = useState("");
+
+  const { data: publications } = useListPublicationsQuery({
+    titleSearchString: searchString,
+  });
 
   return (
     <main className={`flex min-h-screen flex-col p-3`}>
       <input
         type="text"
+        onChange={(e) => setSearchString(e.target.value)}
         placeholder="Author, Keyword, or Title"
         className="input input-bordered input-primary w-full"
       />

@@ -2,9 +2,9 @@ import { request, ClientError } from "graphql-request";
 
 export const graphqlBaseQuery =
   ({ baseUrl }: { baseUrl: string }) =>
-  async ({ body }: { body: string }) => {
+  async ({ body, variables }: { body: string; variables: any }) => {
     try {
-      const result = await request(baseUrl, body);
+      const result = await request(baseUrl, body, variables);
       return { data: result };
     } catch (error) {
       if (error instanceof ClientError) {

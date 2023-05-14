@@ -8,17 +8,19 @@ export const publicationsAPI = createApi({
   baseQuery: graphqlBaseQuery({ baseUrl: subgraphUrl }),
   endpoints: (builder) => ({
     listPublications: builder.query({
-      query: () => ({
+      query: ({titleSearchString}: {titleSearchString: string}) => ({
         body: gql`
-            query{
-                publications(first: 50) {
+            query ListPublications($titleSearchString: String!) {
+                publications(first: 50, where: {title_contains: $titleSearchString}) {
                 id
                 title
                 profile {
                     id
                 }
-            }}
+            }
+            }
         `,
+        variables: {titleSearchString}
       }),
       transformResponse: (response: {
         publications: { id: string; title: string; profile: { id: string } }[];
