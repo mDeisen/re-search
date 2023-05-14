@@ -1,4 +1,4 @@
-import { log } from "@graphprotocol/graph-ts" 
+import { BigInt, bigInt, log } from "@graphprotocol/graph-ts" 
 import {
   OwnershipTransferred as OwnershipTransferredEvent,
   PublicationReferenceModule,
@@ -20,11 +20,10 @@ export function handlePublish(event: PublishEvent): void {
 
   // Update Publication
   let entity = new Publication(
-    event.params.pubId.toString()
+    event.params.profileId.times(BigInt.fromString("1000000")).plus(event.params.pubId).toString() // Shift to make space for pubId
   )
 
   entity.profile = profile.id 
-  entity.id = event.params.pubId.toString()
   entity.citedPublications = event.params.citeIds.map<string>(x => x.toString())
   entity.title = event.params.title
   entity.blockNumber = event.block.number

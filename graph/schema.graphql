@@ -8,7 +8,7 @@ type Profile @entity(immutable: false) {
   writtenReviews: [Review!]! @derivedFrom(field: "publicationAuthorProfile")
 }
 
-type Publication @entity(immutable: true) {
+type Publication @entity(immutable: false) {
   id: String!
   "Publication title"
   title: String!
