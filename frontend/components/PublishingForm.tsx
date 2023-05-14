@@ -148,7 +148,7 @@ const PublishingForm = ({ profile }: { profile: ProfileOwnedByMe }) => {
             contractAddress: "0x0250DFD011C52496605ceE9D93ce82199c1700aA",
             data: new AbiCoder().encode(
               ["tuple(uint[],string)"],
-              [[citeIds.map((n) => BigNumber.from(n).toHexString()), title]]
+              [[citeIds, title]]
             ),
           },
         },
@@ -203,7 +203,13 @@ const PublishingForm = ({ profile }: { profile: ProfileOwnedByMe }) => {
           />
         </div>
         {pubs?.filter(cosmeticFilter).map((pub) => {
-          const cited = citeIds.includes(pub.graphPub.id);
+          // concat profileID - pubID
+          const key = BigNumber.from(pub.lensPub.profile.id)
+            .mul(BigNumber.from("1000000"))
+            .add(BigNumber.from(pub.lensPub.id.split("-")[1]))
+            .toHexString();
+
+          const cited = citeIds.includes(key);
           return (
             <div
               key={pub.graphPub.id}
@@ -218,7 +224,7 @@ const PublishingForm = ({ profile }: { profile: ProfileOwnedByMe }) => {
                   "btn-disabled": cited,
                 })}
                 onClick={() => {
-                  setCiteIds([...citeIds, pub.graphPub.id]);
+                  setCiteIds([...citeIds, key]);
                 }}
               >
                 {cited ? "Cited" : "Cite"}

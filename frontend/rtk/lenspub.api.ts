@@ -62,7 +62,12 @@ export const publicationsAPI = createApi({
           environment: development,
         });
 
-        const publicationIds = pubs.map(({id, profile}) => `${BigNumber.from(profile.id).toHexString()}-${BigNumber.from(id).toHexString()}`);
+        const publicationIds = pubs.map(({id, profile}) => {
+          const publicationId = BigNumber.from(id).mod(BigNumber.from("1000000")).toHexString();
+          const profileId = BigNumber.from(id).div(BigNumber.from("1000000")).toHexString();
+
+          return profileId + "-" + publicationId;
+        });
 
 
         const lensPubs = await lensClient.publication.fetchAll({
@@ -78,9 +83,57 @@ export const publicationsAPI = createApi({
             data: mergePubs,
         }
       },
- 
     }),
+    getPublication: builder.query<MergedPublication, string>({
+      queryFn: async (
+        publicationId,
+        { signal, dispatch, getState },
+        extraOptions,
+        baseQuery
+      ) => {
+        const pub = await baseQuery({
+          body: gql`
+            query GetPublication($publicationId: String!) {
+              publication(id: $publicationId) {
+                id
+                title
+                profile {
+                  id
+                }
+                citedPublications {
+                  id
+                }
+              }
+            }
+          `,
+          variables: { publicationId },
+        //   @ts-ignore
+        }).then((res) => res.data.publication) as LenspubPublication;
+
+        console.log(pub);
+
+        // @ts-ignore
+        development.name = "staging";
+        // @ts-ignore
+        development.url = "https://api-sandbox-mumbai.lens.dev";
+  
+        const lensClient = new LensClient({
+          environment: development,
+        });
+
+        const lensPub = await lensClient.publication.fetch({
+            publicationId
+        });
+
+        return {
+            data: {
+                graphPub: pub,
+                lensPub
+            },
+        }
+      }
+    })
   }),
 });
 
-export const { useListPublicationsQuery } = publicationsAPI;
+export const { useListPublicationsQuery, useGetPublicationQuery } = publicationsAPI;
