@@ -77,7 +77,19 @@ export const publicationsAPI = createApi({
         const mergePubs: MergedPublication[] = pubs.map((pub, i) => ({
             graphPub: pub,
             lensPub: lensPubs[i]
-        }));
+        }))
+
+        // Sort by lensPub.createdAt
+        mergePubs.sort((a, b) => {
+            if (a.lensPub.createdAt < b.lensPub.createdAt) {
+                return -1;
+            } else if (a.lensPub.createdAt > b.lensPub.createdAt) {
+
+                return 1;
+            } else {
+                return 0;
+            }
+        })
 
         return {
             data: mergePubs,
